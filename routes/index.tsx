@@ -12,11 +12,11 @@ type Data = {
 
 export const handler: Handlers<Data> = {
   GET: async (req: Request, ctx: FreshContext) => {
-    const url = "https://hp-api.onrender.com/api/characters"
-    const res = await fetch(url)
-    const characters: Character[] = await res.json()
-    const favorites = readFavorites(req)
-    return ctx.render({characters, favorites})
+    const url = "https://hp-api.onrender.com/api/characters";
+    const response = await axios.get<Character[]>(url);
+    const characters = response.data;
+    const favorites = readFavorites(req);
+    return ctx.render({ characters, favorites });
   }, POST: async (req: Request) => {
     const form = await req.formData()
     const id = form.get("id")
