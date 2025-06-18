@@ -2,42 +2,37 @@ import type { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import axios from "axios"
 import { CSP_CONTEXT } from "$fresh/runtime.ts";
 import CharactersContainer from "../components/CharactersContainer.tsx";
-
-type Character = {
-  id: string;
-  name: string;
-  image: string;
-}
+import type { Character } from "../components/CharacterCard.tsx";
+import { readFavorites, saveFavorites, toggleFavorite } from "../utils/favorites.ts";
 
 type Data = {
   characters: Character[]
+  favorites: string[]
 }
 
-type State = {
-  characters: Character[]
-}
-
-export const handler: Handlers<Data, State> = {
-  GET: async (_req: Request, ctx: FreshContext<State, Data>) => {
-    const ch = ctx.state.characters
+export const handler: Handlers<Data> = {
+  GET: async (req: Request, ctx: FreshContext) => {
     const url = "https://hp-api.onrender.com/api/characters"
-    try {
-      const response = await axios.get<Character[]>(url)
-      const characters = response.data;
-      if (!characters) {
-        return new Response ("No characters found", {status: 400})
-      }
-      return ctx.render({characters})
-    } catch (e) {
-      return new Response ("Error", {status: 500})
-    }
+    const res = await fetch(url)
+    const characters: Character[] = await res.json()
+    const favorites = readFavorites(req)
+    return ctx.render({characters, favorites})
+  }, POST: async (req: Request) => {
+    const form = await req.formData()
+    const id = form.get("id")
+    const favorites = readFavorites(req)
+    const newFavs = toggleFavorite(favorites, String(id))
+    const headers = new Headers()
+    saveFavorites(headers, newFavs)
+    headers.set("Location", "/")
+    return new Response (null, {status: 303, headers})
   }
 }
 
-export default function Page (props: PageProps<{charactes: Character[]}>) {
+export default function Page (props: PageProps<Data>) {
   return (
     <div>
-      <CharactersContainer characters = {props.data.charactes}/>
+      <CharactersContainer characters={props.data.characters} favorites={props.data.favorites}/>
     </div>
   )
 }

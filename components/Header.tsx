@@ -2,8 +2,11 @@ import { FunctionComponent } from "preact";
 
 const Header:FunctionComponent = () => {
     return (
-        <div>
-        </div>
+        <header>
+            <nav>
+                <a href="/">All characters</a> | <a href="/favorites">Favoritos</a>
+            </nav>
+        </header>
     )
 }
 
