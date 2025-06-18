@@ -11,9 +11,9 @@ const CharactersContainer: FunctionalComponent<Props> = (props) => {
 
     return (
         <div class="charactersContainer">
-            {characters.map((ch) => {
-                <CharacterCard key={ch.id} character={ch} isFavorite={favorites.includes(ch.id)}/>
-            })}
+            {characters.map((ch) => (
+                <CharacterCard key={ch.id} character={ch} isFavorite={favorites.includes(ch.id)} />
+            ))}
         </div>
     )
 }
